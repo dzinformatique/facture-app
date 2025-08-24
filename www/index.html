@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Générateur de Factures</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Icônes -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="app">
+    <h1><i data-lucide="file-text"></i> Générateur de Factures</h1>
+
+    <div class="inputs">
+      <label>Numéro de facture
+        <input type="text" id="invoiceNumber" value="1">
+      </label>
+      <label>Nom du client
+        <input type="text" id="clientName" placeholder="Entrez le nom du client">
+      </label>
+      <label>Date
+        <input type="date" id="date">
+      </label>
+    </div>
+
+    <!-- Formulaire service -->
+    <div class="service-form">
+      <input type="text" id="serviceName" placeholder="Service">
+      <input type="number" id="serviceQty" placeholder="Qté" value="1" min="1">
+      <input type="number" id="servicePrice" placeholder="Prix" value="0" min="0">
+      <button onclick="addService()"><i data-lucide="plus-circle"></i> Ajouter</button>
+    </div>
+
+    <!-- Tableau -->
+    <table id="services">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Quantité</th>
+          <th>Prix</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="total">
+      <i data-lucide="calculator"></i> Total: <span id="total">0</span> €
+    </div>
+
+    <button class="export" onclick="generatePDF()">
+      <i data-lucide="download"></i> Exporter en PDF
+    </button>
+  </div>
+
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <script src="script.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
