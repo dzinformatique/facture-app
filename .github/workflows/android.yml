@@ -26,42 +26,24 @@ jobs:
     - name: Add Android platform
       run: cordova platform add android
 
-    # بناء AAB (Google Play)
-    - name: Build Android AAB
-      run: cordova build android --release -- --packageType=bundle
+    - name: Build AAB
+      run: cordova build android --release
 
-    # بناء APK (لاستخدامه في الاختبار و GitHub Release)
-    - name: Build Android APK
-      run: cordova build android --release -- --packageType=apk
-
-    # استخراج keystore من GitHub Secrets
-    - name: Decode Keystore
+    - name: Build APK
       run: |
-        echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > my-release-key.jks
+        cd platforms/android/
+        ./gradlew assembleRelease
 
-    # توقيع APK
-    - name: Sign APK
-      run: |
-        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
-          -keystore my-release-key.jks \
-          -storepass ${{ secrets.KEYSTORE_PASSWORD }} \
-          -keypass ${{ secrets.KEY_PASSWORD }} \
-          platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk \
-          ${{ secrets.KEY_ALIAS }}
-
-    # محاذاة APK (zipalign)
-    - name: Align APK
-      run: |
-        $ANDROID_HOME/build-tools/34.0.0/zipalign -v 4 \
-          platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk \
-          platforms/android/app/build/outputs/apk/release/app-release-signed.apk
-
-    # رفع الملفات النهائية إلى GitHub Releases
-    - name: Upload build to GitHub Releases
-      uses: softprops/action-gh-release@v1
+    # رفع الـ AAB كـ Artifact
+    - name: Upload AAB
+      uses: actions/upload-artifact@v3
       with:
-        files: |
-          platforms/android/app/build/outputs/bundle/release/app-release.aab
-          platforms/android/app/build/outputs/apk/release/app-release-signed.apk
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: App-AAB
+        path: platforms/android/app/build/outputs/bundle/release/app-release.aab
+
+    # رفع الـ APK كـ Artifact
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: App-APK
+        path: platforms/android/app/build/outputs/apk/release/app-release.apk
