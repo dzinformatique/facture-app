@@ -26,10 +26,15 @@ jobs:
     - name: Add Android platform
       run: cordova platform add android
 
-    - name: Build Android (APK + AAB)
-      run: cordova build android --release
+    # بناء AAB (Google Play)
+    - name: Build Android AAB
+      run: cordova build android --release -- --packageType=bundle
 
-    # استخراج keystore من GitHub Secrets (مخزن كـ Base64)
+    # بناء APK (لاستخدامه في الاختبار و GitHub Release)
+    - name: Build Android APK
+      run: cordova build android --release -- --packageType=apk
+
+    # استخراج keystore من GitHub Secrets
     - name: Decode Keystore
       run: |
         echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > my-release-key.jks
@@ -51,7 +56,7 @@ jobs:
           platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk \
           platforms/android/app/build/outputs/apk/release/app-release-signed.apk
 
-    # رفع الملفات إلى GitHub Releases
+    # رفع الملفات النهائية إلى GitHub Releases
     - name: Upload build to GitHub Releases
       uses: softprops/action-gh-release@v1
       with:
