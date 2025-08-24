@@ -1,4 +1,4 @@
-name: Build Android APK & AAB
+name: Build Signed Android APK & AAB
 
 on:
   push:
@@ -26,12 +26,35 @@ jobs:
     - name: Add Android platform
       run: cordova platform add android
 
-    - name: Build Android
-      run: npm run build
+    - name: Build release
+      run: cordova build android --release
 
-    - name: Upload APK/AAB as artifact
-      uses: actions/upload-artifact@v3
+    # استرجاع keystore من Secrets
+    - name: Decode keystore
+      run: echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > my-release-key.jks
+
+    # توقيع APK
+    - name: Sign APK
+      run: |
+        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+          -keystore my-release-key.jks \
+          -storepass ${{ secrets.KEYSTORE_PASSWORD }} \
+          -keypass ${{ secrets.KEY_PASSWORD }} \
+          platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk \
+          ${{ secrets.KEY_ALIAS }}
+
+    # إنشاء AAB
+    - name: Build AAB (bundle)
+      run: |
+        cd platforms/android/
+        ./gradlew bundleRelease
+
+    # رفع إلى GitHub Releases
+    - name: Upload build to GitHub Releases
+      uses: softprops/action-gh-release@v1
       with:
-        name: facture-app-build
-        path: platforms/android/app/build/outputs/**
-
+        files: |
+          platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          platforms/android/app/build/outputs/bundle/release/app-release.aab
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
