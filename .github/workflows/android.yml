@@ -1,4 +1,4 @@
-name: Build Signed Android APK & AAB
+name: Build Android APK & AAB
 
 on:
   push:
@@ -26,14 +26,16 @@ jobs:
     - name: Add Android platform
       run: cordova platform add android
 
-    - name: Build release
+    - name: Build AAB
       run: cordova build android --release
 
-    # استرجاع keystore من Secrets
-    - name: Decode keystore
-      run: echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > my-release-key.jks
+    # بناء APK موازٍ للـ AAB
+    - name: Build APK
+      run: |
+        cd platforms/android/
+        ./gradlew assembleRelease
 
-    # توقيع APK
+    # توقيع الـ APK
     - name: Sign APK
       run: |
         jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
@@ -43,18 +45,19 @@ jobs:
           platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk \
           ${{ secrets.KEY_ALIAS }}
 
-    # إنشاء AAB
-    - name: Build AAB (bundle)
+    # محاذاة الـ APK (zipalign)
+    - name: Align APK
       run: |
-        cd platforms/android/
-        ./gradlew bundleRelease
+        $ANDROID_HOME/build-tools/34.0.0/zipalign -v 4 \
+          platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk \
+          platforms/android/app/build/outputs/apk/release/app-release-signed.apk
 
-    # رفع إلى GitHub Releases
+    # رفع الملفات إلى GitHub Releases
     - name: Upload build to GitHub Releases
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
           platforms/android/app/build/outputs/bundle/release/app-release.aab
+          platforms/android/app/build/outputs/apk/release/app-release-signed.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
