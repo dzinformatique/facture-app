@@ -26,19 +26,19 @@ jobs:
     - name: Add Android platform
       run: cordova platform add android
 
-    - name: Build Release (APK + AAB)
+    - name: Build Android (Release)
       run: cordova build android --release
 
-    # ✅ Upload AAB
+    # رفع الـ AAB
     - name: Upload AAB
       uses: actions/upload-artifact@v3
       with:
-        name: App-AAB
-        path: platforms/android/app/build/outputs/bundle/release/*.aab
+        name: app-release-aab
+        path: platforms/android/app/build/outputs/bundle/release/app-release.aab
 
-    # ✅ Upload APK
+    # رفع الـ APK
     - name: Upload APK
       uses: actions/upload-artifact@v3
       with:
-        name: App-APK
-        path: platforms/android/app/build/outputs/apk/release/*.apk
+        name: app-release-apk
+        path: platforms/android/app/build/outputs/apk/release/app-release.apk
