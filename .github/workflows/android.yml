@@ -26,16 +26,15 @@ jobs:
     - name: Add Android platform
       run: cordova platform add android
 
-    - name: Build AAB
+    - name: Build Android (APK + AAB)
       run: cordova build android --release
 
-    # بناء APK موازٍ للـ AAB
-    - name: Build APK
+    # استخراج keystore من GitHub Secrets (مخزن كـ Base64)
+    - name: Decode Keystore
       run: |
-        cd platforms/android/
-        ./gradlew assembleRelease
+        echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > my-release-key.jks
 
-    # توقيع الـ APK
+    # توقيع APK
     - name: Sign APK
       run: |
         jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
@@ -45,7 +44,7 @@ jobs:
           platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk \
           ${{ secrets.KEY_ALIAS }}
 
-    # محاذاة الـ APK (zipalign)
+    # محاذاة APK (zipalign)
     - name: Align APK
       run: |
         $ANDROID_HOME/build-tools/34.0.0/zipalign -v 4 \
