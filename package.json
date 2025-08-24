@@ -1,0 +1,10 @@
+{
+  "name": "facture-app",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cordova build android"
+  },
+  "devDependencies": {
+    "cordova": "^11.0.0"
+  }
+}
