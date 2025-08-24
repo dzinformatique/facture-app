@@ -4,6 +4,9 @@ on:
   push:
     branches: [ "main" ]
 
+permissions:
+  contents: write   # 👈 ضروري باش يقدر يعمل release
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -63,7 +66,7 @@ jobs:
         files: |
           platforms/android/app/build/outputs/bundle/release/app-release.aab
           platforms/android/app/build/outputs/apk/release/app-release-signed.apk
-        tag_name: latest
-        name: "Latest Build"
+        tag_name: v1.0.${{ github.run_number }}
+        name: "Build ${{ github.run_number }}"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
