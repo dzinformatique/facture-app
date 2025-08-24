@@ -63,5 +63,7 @@ jobs:
         files: |
           platforms/android/app/build/outputs/bundle/release/app-release.aab
           platforms/android/app/build/outputs/apk/release/app-release-signed.apk
+        tag_name: latest
+        name: "Latest Build"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
