@@ -46,14 +46,14 @@ jobs:
           -keystore my-release-key.jks \
           -storepass ${{ secrets.KEYSTORE_PASSWORD }} \
           -keypass ${{ secrets.KEY_PASSWORD }} \
-          platforms/android/app/build/outputs/apk/release/app-release.apk \
+          platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk \
           ${{ secrets.KEY_ALIAS }}
 
     # محاذاة APK (zipalign)
     - name: Align APK
       run: |
         $ANDROID_HOME/build-tools/34.0.0/zipalign -v 4 \
-          platforms/android/app/build/outputs/apk/release/app-release.apk \
+          platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk \
           platforms/android/app/build/outputs/apk/release/app-release-signed.apk
 
     # رفع الملفات النهائية إلى GitHub Releases
